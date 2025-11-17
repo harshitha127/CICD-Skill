@@ -1,20 +1,21 @@
-cat > Jenkinsfile <<'JENKINS'
 pipeline {
     agent any
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                // This 'git' step is optional when using "Pipeline script from SCM",
-                // but harmless if you want to test pipeline in other contexts.
-                git branch: 'main',
-                    url: 'https://github.com/your-username/your-repo.git'
+                // If you use "Pipeline script from SCM" this checkout is optional.
+                checkout([$class: 'GitSCM',
+                  branches: [[name: '*/main']],
+                  userRemoteConfigs: [[url: 'https://github.com/harshitha127/CICD-Skill.git']]
+                ])
             }
         }
 
         stage('Build') {
             steps {
-                sh 'chmod +x build.sh'
+                // run your build script; ensure build.sh is executable in repo or chmod here
+                sh 'chmod +x build.sh || true'
                 sh './build.sh'
             }
         }
@@ -22,8 +23,7 @@ pipeline {
 
     post {
         always {
-            echo 'Build completed!'
+            echo "Build finished with status: ${currentBuild.currentResult}"
         }
     }
 }
-JENKINS
